@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from "three";
+import { Material, Mesh } from 'three';
 
 // Modified from Will Bamford's (class-component based) codepen: https://codepen.io/WebSeed/details/MEBoRq
 
@@ -75,15 +76,26 @@ function setup3dSceneAndReturnTeardownFn(mountRef: React.RefObject<HTMLDivElemen
 
 
     //make a thing
-    const geometry = new THREE.SphereGeometry(1, 16, 16);
-    const material = new THREE.MeshStandardMaterial({
-        flatShading: true,
-        color: 0x0033ff
-    });
-    const myShape = new THREE.Mesh(geometry, material);
+    let myShape: Mesh;
+    {
+        const geometry = new THREE.SphereGeometry(1, 16, 16);
+        const material = new THREE.MeshStandardMaterial({
+            flatShading: true,
+            color: 0x0033ff
+        });
+        myShape = new THREE.Mesh(geometry, material);
+        myShape.position.x = -1;
+        scene.add(myShape);
+    }
 
-    scene.add(myShape);
-
+    let myShape2: Mesh;
+    {
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshNormalMaterial();
+        myShape2 = new THREE.Mesh(geometry, material);
+        myShape2.position.x = 1;
+        scene.add(myShape2);
+    }
     // const helper = new THREE.DirectionalLightHelper(light, 5);
     // scene.add(helper);
 
@@ -110,6 +122,7 @@ function setup3dSceneAndReturnTeardownFn(mountRef: React.RefObject<HTMLDivElemen
 
     const animate = () => {
         myShape.rotation.y += controlsRef.current.sliderVal / 70;
+        myShape2.rotation.y += controlsRef.current.sliderVal / 50;
 
         renderScene();
         frameId = window.requestAnimationFrame(animate);
@@ -141,8 +154,12 @@ function setup3dSceneAndReturnTeardownFn(mountRef: React.RefObject<HTMLDivElemen
         if (mountRef.current) mountRef.current.removeChild(renderer.domElement);
 
         scene.remove(myShape);
-        geometry.dispose();
-        material.dispose();
+        myShape.geometry.dispose();
+        (myShape.material as Material).dispose();
+
+        scene.remove(myShape2);
+        myShape2.geometry.dispose();
+        (myShape2.material as Material).dispose();
     }
 
     return tearDown;
