@@ -46,6 +46,23 @@ export function createMetaballShaderMaterial(): { mat: THREE.ShaderMaterial, sim
       return final;
     }
 
+    //more complex - consider colourForValue, first
+    // this one creates bands by turning sawtooth into triangle wave, then into smoothed squarewave.  
+    vec4 colourForValueBanded(float inVal){
+      vec4 colourTransparent = vec4(1., 0., 0., 0.);
+      vec4 colourMain = vec4(0., 1., 0., 1.);
+
+      float thresholded = smoothstep(0.0, 0.2, inVal);
+      float sawtooth = mod(inVal, 0.1) - 0.05;
+
+      float middleFiller = smoothstep(0.9, 0.92, inVal);
+      float attenuator = smoothstep(0.4, 0.5, inVal);
+      
+      float v = smoothstep(0.02, 0.03, abs(sawtooth)) * attenuator + middleFiller;//TODO: don't add - this makes it 0<->2, not 0<->1
+      vec4 final = mix(colourTransparent, colourMain, v);
+      return final;
+    }
+
     void main () {
       vec4 c2Edge = vec4(0.0, 0.9, 0.2, 1.);
 
@@ -55,7 +72,7 @@ export function createMetaballShaderMaterial(): { mat: THREE.ShaderMaterial, sim
       float d4 = 1. / (distance(particles[3], vUv));
       float sum = (d1 + d2 + d3 + d4) / 20.;
 
-      vec4 final = colourForValue(sum);
+      vec4 final = colourForValueBanded(sum);
       
       if (vUv.x < 0.01 || vUv.x > 0.99 || vUv.y < 0.01 || vUv.y > 0.99){
         gl_FragColor = c2Edge;      
