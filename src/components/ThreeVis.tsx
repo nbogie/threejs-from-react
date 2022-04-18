@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from "three";
 import { Material, Mesh, ShaderMaterial } from 'three';
-import { createMetaballShaderMaterial, Simulation, updateMetaballMaterial } from './metaballShader';
+import { createMetaballShaderMaterial, updateMetaballMaterial } from './metaballShader';
 
 // Modified from Will Bamford's (class-component based) codepen: https://codepen.io/WebSeed/details/MEBoRq
 
