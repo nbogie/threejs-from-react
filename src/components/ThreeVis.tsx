@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from "three";
-import { Material, Mesh } from 'three';
+import { Material, Mesh, ShaderMaterial } from 'three';
+import { createMetaballShaderMaterial, Simulation, updateMetaballMaterial } from './metaballShader';
 import { createMyShaderMaterial } from './myShaderMaterial';
 
 // Modified from Will Bamford's (class-component based) codepen: https://codepen.io/WebSeed/details/MEBoRq
@@ -85,16 +86,19 @@ function setup3dSceneAndReturnTeardownFn(mountRef: React.RefObject<HTMLDivElemen
             color: 0x0033ff
         });
         myShape = new THREE.Mesh(geometry, material);
-        myShape.position.x = -1;
+        // myShape.position.x = -0.5;
         scene.add(myShape);
     }
+    let metaballSimulation: Simulation;
 
     let myShape2: Mesh;
     {
-        const material = createMyShaderMaterial();
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        myShape2 = new THREE.Mesh(geometry, material);
-        myShape2.position.x = 1;
+        const metaballData = createMetaballShaderMaterial();
+        const mat = metaballData.mat;
+        metaballSimulation = metaballData.simulation;
+        const geometry = new THREE.BoxGeometry(3, 3, 3);
+        myShape2 = new THREE.Mesh(geometry, mat);
+        myShape2.position.x = 0;
         scene.add(myShape2);
     }
 
@@ -119,7 +123,7 @@ function setup3dSceneAndReturnTeardownFn(mountRef: React.RefObject<HTMLDivElemen
     const animate = () => {
         myShape.rotation.y += controlsRef.current.sliderVal / 70;
         myShape2.rotation.y += controlsRef.current.sliderVal / 50;
-
+        updateMetaballMaterial(myShape2.material as ShaderMaterial, metaballSimulation, 0.01);
         renderScene();
         frameId = window.requestAnimationFrame(animate);
     };
