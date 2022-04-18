@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from "three";
 import { Material, Mesh } from 'three';
+import { createMyShaderMaterial } from './myShaderMaterial';
 
 // Modified from Will Bamford's (class-component based) codepen: https://codepen.io/WebSeed/details/MEBoRq
 
@@ -90,17 +91,12 @@ function setup3dSceneAndReturnTeardownFn(mountRef: React.RefObject<HTMLDivElemen
 
     let myShape2: Mesh;
     {
+        const material = createMyShaderMaterial();
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshNormalMaterial();
         myShape2 = new THREE.Mesh(geometry, material);
         myShape2.position.x = 1;
         scene.add(myShape2);
     }
-    // const helper = new THREE.DirectionalLightHelper(light, 5);
-    // scene.add(helper);
-
-
-
 
     const renderScene = () => {
         renderer.render(scene, camera);
