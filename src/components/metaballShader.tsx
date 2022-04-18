@@ -39,18 +39,20 @@ export function createMetaballShaderMaterial(): { mat: THREE.ShaderMaterial, sim
     uniform vec2 particles[ 4 ];
 
     void main () {
-      vec4 c1 = vec4(1., 0., 0., 0.);
-      vec4 c2 = vec4(0., 1., 0., 1.);
-      float d1 = 1. / (1. + distance(particles[0], vUv.xy));
-      float d2 = 1. / (1. + distance(particles[1], vUv.xy));
-      float d3 = 1. / (1. + distance(particles[2], vUv.xy));
-      float d4 = 1. / (1. + distance(particles[3], vUv.xy));
-      float sum = (d1 + d2 + d3 + d4)/4.;
+      vec4 c1Transparent = vec4(1., 0., 0., 0.);
+      vec4 c2Main = vec4(0., 1., 0., 1.);
+
+      float d1 = 1. / (distance(particles[0], vUv));
+      float d2 = 1. / (distance(particles[1], vUv));
+      float d3 = 1. / (distance(particles[2], vUv));
+      float d4 = 1. / (distance(particles[3], vUv));
+      float sum = (d1 + d2 + d3 + d4) / 20.;
       float v = smoothstep(0.72, 0.74, sum);
-      vec4 final = mix(c1, c2, v);
-      gl_FragColor = final;
+      vec4 final = mix(c1Transparent, c2Main, v);
       if (vUv.x < 0.01 || vUv.x > 0.99 || vUv.y < 0.01 || vUv.y > 0.99){
-        gl_FragColor = c2;      
+        gl_FragColor = c2Main;      
+      } else {
+        gl_FragColor = final;
       }
     }
   `;
@@ -63,7 +65,6 @@ export function createMetaballShaderMaterial(): { mat: THREE.ShaderMaterial, sim
     },
     transparent: true,
     side: THREE.DoubleSide,
-    // wireframe: true,
     vertexShader,
     fragmentShader
   });
