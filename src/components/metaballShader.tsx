@@ -38,19 +38,27 @@ export function createMetaballShaderMaterial(): { mat: THREE.ShaderMaterial, sim
     uniform float time;    
     uniform vec2 particles[ 4 ];
 
-    void main () {
+    vec4 colourForValue(float inVal){
       vec4 c1Transparent = vec4(1., 0., 0., 0.);
       vec4 c2Main = vec4(0., 1., 0., 1.);
+      float v = smoothstep(0.72, 0.74, inVal);
+      vec4 final = mix(c1Transparent, c2Main, v);
+      return final;
+    }
+
+    void main () {
+      vec4 c2Edge = vec4(0.0, 0.9, 0.2, 1.);
 
       float d1 = 1. / (distance(particles[0], vUv));
       float d2 = 1. / (distance(particles[1], vUv));
       float d3 = 1. / (distance(particles[2], vUv));
       float d4 = 1. / (distance(particles[3], vUv));
       float sum = (d1 + d2 + d3 + d4) / 20.;
-      float v = smoothstep(0.72, 0.74, sum);
-      vec4 final = mix(c1Transparent, c2Main, v);
+
+      vec4 final = colourForValue(sum);
+      
       if (vUv.x < 0.01 || vUv.x > 0.99 || vUv.y < 0.01 || vUv.y > 0.99){
-        gl_FragColor = c2Main;      
+        gl_FragColor = c2Edge;      
       } else {
         gl_FragColor = final;
       }
